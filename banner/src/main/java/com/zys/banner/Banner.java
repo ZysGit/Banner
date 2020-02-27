@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
 import java.lang.ref.WeakReference;
 
@@ -42,12 +41,6 @@ public class Banner extends FrameLayout {
         initTypeArray(context, attrs);
     }
 
-    public interface OnBannerListener<T> {
-        void onBannerClicked(T data, int position);
-
-        void onBannerChanged(int position);
-    }
-
     private void initTypeArray(Context context, AttributeSet attrs) {
 
     }
@@ -61,14 +54,6 @@ public class Banner extends FrameLayout {
         mLayoutManager = new BannerLayoutManager(context);
         mLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        ViewPager2 viewPager2 = new ViewPager2(context);
-        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-        });
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -112,6 +97,9 @@ public class Banner extends FrameLayout {
             @Override
             public void run() {
                 scrollToItem(2, false);
+                if (mOnBannerListener != null) {
+                    mOnBannerListener.onBannerChanged(0);
+                }
             }
         });
     }
@@ -122,6 +110,9 @@ public class Banner extends FrameLayout {
 
     public void setOnBannerListener(OnBannerListener onBannerListener) {
         this.mOnBannerListener = onBannerListener;
+        if (getAdapter() != null) {
+            getAdapter().setOnBannerListener(this.mOnBannerListener);
+        }
     }
 
     public void setDelayTime(long mDelayTime) {
@@ -135,10 +126,6 @@ public class Banner extends FrameLayout {
 
     public void stop() {
         removeCallbacks(mAutoLoopTask);
-    }
-
-    private void resetItem() {
-
     }
 
     private int getCurrentItem() {

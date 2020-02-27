@@ -10,7 +10,7 @@ import java.util.List;
 
 public abstract class BannerAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
     protected List<T> datas;
-    private BannerItemClickListener<T> bannerItemClickListener;
+    private OnBannerListener<T> onBannerListener;
 
     public BannerAdapter(List<T> datas) {
         this.datas = new ArrayList<>();
@@ -25,12 +25,12 @@ public abstract class BannerAdapter<T, VH extends RecyclerView.ViewHolder> exten
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, final int position) {
-        final int realPosition = getRealPosition(position);
+        final int realPosition =BannerUtils.getRealPosition(position, datas.size() - 4);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bannerItemClickListener != null) {
-                    bannerItemClickListener.onClick(datas.get(position), realPosition);
+                if (onBannerListener != null) {
+                    onBannerListener.onBannerClicked(datas.get(position), realPosition);
                 }
             }
         });
@@ -41,11 +41,7 @@ public abstract class BannerAdapter<T, VH extends RecyclerView.ViewHolder> exten
         return datas.size();
     }
 
-    private int getRealPosition(int position) {
-        return 0;
-    }
-
-    public void setBannerItemClickListener(BannerItemClickListener<T> bannerItemClickListener) {
-        this.bannerItemClickListener = bannerItemClickListener;
+     void setOnBannerListener(OnBannerListener<T> onBannerListener) {
+        this.onBannerListener = onBannerListener;
     }
 }
