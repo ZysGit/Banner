@@ -2,6 +2,7 @@ package com.zys.banner;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import java.lang.ref.WeakReference;
 
 
 public class Banner extends FrameLayout {
+    private static final String TAG = Banner.class.getSimpleName();
+
     private RecyclerView mRecyclerView;
     private BannerAdapter bannerAdapter;
     private LinearLayoutManager mLayoutManager;
@@ -82,11 +85,33 @@ public class Banner extends FrameLayout {
         if (action == MotionEvent.ACTION_UP
                 || action == MotionEvent.ACTION_CANCEL
                 || action == MotionEvent.ACTION_OUTSIDE) {
-            start();
+            autoResume();
         } else if (action == MotionEvent.ACTION_DOWN) {
-            stop();
+            autoPause();
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (hasWindowFocus) {
+            autoResume();
+        } else {
+            autoPause();
+        }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        autoResume();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        autoPause();
     }
 
     public void setAdapter(BannerAdapter adapter) {
@@ -119,13 +144,45 @@ public class Banner extends FrameLayout {
         this.mDelayTime = mDelayTime;
     }
 
+    private boolean started;
+
     public void start() {
+        Log.d(TAG, "start");
         stop();
         postDelayed(mAutoLoopTask, mDelayTime);
+        started = true;
+        isPlaying = true;
+    }
+
+    private boolean isPlaying;
+
+    public boolean isPlaying() {
+        return isPlaying;
     }
 
     public void stop() {
+        Log.d(TAG, "stop");
         removeCallbacks(mAutoLoopTask);
+        started = false;
+        isPlaying = false;
+    }
+
+    private boolean isPaused;
+
+    private void autoPause() {
+        if (started && !isPaused) {
+            Log.d(TAG, "auto pause");
+            removeCallbacks(mAutoLoopTask);
+            isPaused = true;
+        }
+    }
+
+    private void autoResume() {
+        if (started && isPaused) {
+            Log.d(TAG, "auto resume");
+            isPaused = false;
+            postDelayed(mAutoLoopTask, mDelayTime);
+        }
     }
 
     private int getCurrentItem() {
@@ -148,6 +205,7 @@ public class Banner extends FrameLayout {
     }
 
     private void scrollToItem(int position, boolean smoothScroll) {
+//        Log.d(TAG, "scrollToItem [" + position + "]");
         if (position < 0) {
             return;
         }

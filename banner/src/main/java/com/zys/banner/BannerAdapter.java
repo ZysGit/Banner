@@ -9,23 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BannerAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
-    protected List<T> datas;
+    protected List<T> datas = new ArrayList<>();
     private OnBannerListener<T> onBannerListener;
 
     public BannerAdapter(List<T> datas) {
-        this.datas = new ArrayList<>();
+        this.datas.clear();
         this.datas.addAll(datas);
         if (!datas.isEmpty()) {
             this.datas.add(0, datas.get(datas.size() - 1));
-            this.datas.add(0, datas.get(datas.size() - 2));
+            this.datas.add(0, datas.get(datas.size() < 2 ? 0 : datas.size() - 2));
             this.datas.add(this.datas.size(), datas.get(0));
-            this.datas.add(this.datas.size(), datas.get(1));
+            this.datas.add(this.datas.size(), datas.get(datas.size() < 2 ? 0 : 1));
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, final int position) {
-        final int realPosition =BannerUtils.getRealPosition(position, datas.size() - 4);
+        final int realPosition = BannerUtils.getRealPosition(position, datas.size() - 4);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -41,7 +41,7 @@ public abstract class BannerAdapter<T, VH extends RecyclerView.ViewHolder> exten
         return datas.size();
     }
 
-     void setOnBannerListener(OnBannerListener<T> onBannerListener) {
+    void setOnBannerListener(OnBannerListener<T> onBannerListener) {
         this.onBannerListener = onBannerListener;
     }
 }
