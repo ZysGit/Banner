@@ -118,7 +118,7 @@ public class Banner extends FrameLayout {
         bannerAdapter = adapter;
         mRecyclerView.setAdapter(bannerAdapter);
         bannerAdapter.notifyDataSetChanged();
-        mRecyclerView.post(new Runnable() {
+        mRecyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 scrollToItem(2, false);
@@ -126,7 +126,7 @@ public class Banner extends FrameLayout {
                     mOnBannerListener.onBannerChanged(0);
                 }
             }
-        });
+        }, 500);
     }
 
     public BannerAdapter getAdapter() {
@@ -217,10 +217,13 @@ public class Banner extends FrameLayout {
                 RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
                 if (adapter != null) {
                     View childView = mRecyclerView.getChildAt(0);
-                    MarginLayoutParams layoutParams = (MarginLayoutParams) childView.getLayoutParams();
                     int rvWidth = mRecyclerView.getWidth();
-                    int childWidth = childView.getWidth();
-                    int offsetPx = (rvWidth - childWidth - layoutParams.leftMargin - layoutParams.rightMargin) / 2;
+                    int offsetPx = 0;
+                    if (childView != null) {
+                        MarginLayoutParams layoutParams = (MarginLayoutParams) childView.getLayoutParams();
+                        int childWidth = childView.getWidth();
+                        offsetPx = (rvWidth - childWidth - layoutParams.leftMargin - layoutParams.rightMargin) / 2;
+                    }
                     layoutManager.scrollToPositionWithOffset(position, offsetPx);
                 }
             }

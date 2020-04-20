@@ -37,7 +37,7 @@ dependencies {
 
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
-def versionName = 0.1
+def versionName = 0.2
 
 version = versionName
 group = "com.nzsg.github"
